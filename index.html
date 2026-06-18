@@ -6,6 +6,17 @@
   <title>Justin Cajayon, Engineering Leader</title>
   <meta name="description" content="I build and scale engineering organizations and bring AI-native practices into high-trust environments where software moves real money and failure carries real consequences.">
   <meta name="author" content="Justin Cajayon">
+  <meta name="theme-color" content="#faf8f3">
+
+  <!-- Apply saved theme before first paint to avoid a flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Justin Cajayon, Engineering Leader">
@@ -26,6 +37,27 @@
       --accent: #2a527d;
       --accent-hover: #1c3a5a;
       --maxw: 680px;
+      color-scheme: light;
+    }
+
+    /* Dark palette: warm near-black, never pure black; lighter ink-blue accent for contrast */
+    :root[data-theme="dark"] {
+      --bg: #1b1a17;
+      --ink: #ece7dd;
+      --muted: #a49b8d;
+      --accent: #8db6da;
+      --accent-hover: #a7c6e3;
+      color-scheme: dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #1b1a17;
+        --ink: #ece7dd;
+        --muted: #a49b8d;
+        --accent: #8db6da;
+        --accent-hover: #a7c6e3;
+        color-scheme: dark;
+      }
     }
 
     * { box-sizing: border-box; }
@@ -40,6 +72,7 @@
       line-height: 1.65;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      transition: background-color .3s ease, color .3s ease;
     }
 
     .page {
@@ -55,6 +88,40 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .page { animation: none; }
+      body, a, .section-label, .stat-company, .stat-value, .stat-label, .theme-toggle {
+        transition: none;
+      }
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: clamp(1.5rem, 4vw, 2.25rem);
+    }
+    .theme-toggle {
+      -webkit-appearance: none;
+      appearance: none;
+      background: none;
+      border: 0;
+      padding: .2rem 0;
+      font-family: inherit;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .2s ease;
+    }
+    .theme-toggle:hover { color: var(--ink); }
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+
+    .section-label, .stat-company, .stat-value, .stat-label {
+      transition: color .3s ease;
     }
 
     h1, h2 {
@@ -179,6 +246,9 @@
 </head>
 <body>
   <main class="page">
+    <div class="topbar">
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark</button>
+    </div>
     <header>
       <h1>Justin Cajayon</h1>
       <p class="lede">I build and scale engineering organizations and bring AI-native practices into high-trust environments where software moves real money and failure carries real consequences.</p>
@@ -226,5 +296,39 @@
       </p>
     </section>
   </main>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      var root = document.documentElement;
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      var meta = document.querySelector('meta[name="theme-color"]');
+
+      function effective() {
+        var t = root.getAttribute('data-theme');
+        return (t === 'dark' || t === 'light') ? t : (mq.matches ? 'dark' : 'light');
+      }
+      function sync() {
+        var cur = effective();
+        var next = cur === 'dark' ? 'light' : 'dark';
+        btn.textContent = next === 'dark' ? 'Dark' : 'Light';
+        btn.setAttribute('aria-label', 'Switch to ' + next + ' mode');
+        if (meta) meta.setAttribute('content', cur === 'dark' ? '#1b1a17' : '#faf8f3');
+      }
+      btn.addEventListener('click', function () {
+        var next = effective() === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        sync();
+      });
+      mq.addEventListener('change', function () {
+        var saved = null;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        if (saved !== 'dark' && saved !== 'light') sync();
+      });
+      sync();
+    })();
+  </script>
 </body>
 </html>
